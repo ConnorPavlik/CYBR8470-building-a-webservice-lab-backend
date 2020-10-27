@@ -203,3 +203,198 @@ class ActivateIFTTT(APIView):
         newEvent.save()
         print 'New Event Logged'
         return Response({'success': True}, status=status.HTTP_200_OK)
+
+class DogDetail(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    def get(self, request, id):
+        if not Dog.objects.filter(id=id).exists():
+            return Response({'dog': 'Dog does not exist.', 'status': 'error'})
+        dog = Dog.objects.filter(id=id)
+        json_data = serializers.serialize('json', dog)
+        content = {'dog': json_data}
+        return HttpResponse(json_data, content_type='json')
+
+    def put(self, request, id):
+        print 'REQUEST DATA'
+        print str(request.data)
+        name = request.data.get('name') #you need to apply validators to these
+        age = request.data.get('age') #you need to apply validators to these
+        breed = request.data.get('breed') #you need to apply validators to these
+        gender = request.data.get('gender') #you need to apply validators to these
+        color = request.data.get('color') #you need to apply validators to these
+        favoritefood = request.data.get('favoritefood') #you need to apply validators to these
+        favoritetoy = request.data.get('favoritetoy') #you need to apply validators to these
+        if not Breed.objects.filter(id=breed).exists():
+            return Response({'breed': 'Breed does not exist.', 'status': 'error'})
+
+        breed = Breed.objects.filter(id=breed).first()
+        updateDog = Dog(
+            id=id,
+            name=name,
+            age=age,
+            breed=breed,
+            gender=gender,
+            color=color,
+            favoritefood=favoritefood,
+            favoritetoy=favoritetoy
+        )
+
+        try:
+            updateDog.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        updateDog.save()
+        print 'Update Dog Logged'
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+    def delete(self, request, id):
+        if not Dog.objects.filter(id=id).exists():
+            return Response({'dog': 'Dog does not exist.', 'status': 'error'})
+        dog = Dog.objects.filter(id=id)
+        dog.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+class DogList(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    def get(self, request, format=None):
+        dog = Dog.objects.all()
+        json_data = serializers.serialize('json', dog)
+        content = {'dogs': json_data}
+        return HttpResponse(json_data, content_type='json')
+
+    def post(self, request, *args, **kwargs):
+        print 'REQUEST DATA'
+        print str(request.data)
+
+        name = request.data.get('name') #you need to apply validators to these
+        age = request.data.get('age') #you need to apply validators to these
+        breed = request.data.get('breed') #you need to apply validators to these
+        gender = request.data.get('gender') #you need to apply validators to these
+        color = request.data.get('color') #you need to apply validators to these
+        favoritefood = request.data.get('favoritefood') #you need to apply validators to these
+        favoritetoy = request.data.get('favoritetoy') #you need to apply validators to these
+        if not Breed.objects.filter(id=breed).exists():
+            return Response({'breed': 'Breed does not exist.', 'status': 'error'})
+
+        breed = Breed.objects.filter(id=breed).first()
+        newDog = Dog(
+            name=name,
+            age=age,
+            breed=breed,
+            gender=gender,
+            color=color,
+            favoritefood=favoritefood,
+            favoritetoy=favoritetoy
+        )
+
+        try:
+            newDog.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        newDog.save()
+        print 'New Dog Logged'
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+class BreedDetail(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    def get(self, request, id):
+        if not Breed.objects.filter(id=id).exists():
+            return Response({'breed': 'Breed does not exist.', 'status': 'error'})
+        breed = Breed.objects.filter(id=id)
+        json_data = serializers.serialize('json', breed)
+        content = {'breed': json_data}
+        return HttpResponse(json_data, content_type='json')
+
+    def put(self, request, id):
+        print 'REQUEST DATA'
+        print str(request.data)
+
+        name = request.data.get('name') #you need to apply validators to these
+        size = request.data.get('size') #you need to apply validators to these
+        friendliness = request.data.get('friendliness') #you need to apply validators to these
+        trainability = request.data.get('trainability') #you need to apply validators to these
+        sheddingamount = request.data.get('sheddingamount') #you need to apply validators to these
+        exerciseneeds = request.data.get('exerciseneeds') #you need to apply validators to these
+        if Breed.objects.filter(name=name).exists():
+            return Response({'name': 'Name already exists.', 'status': 'error'})
+
+        updateBreed = Breed(
+            id=id,
+            name=name,
+            size=size,
+            friendliness=friendliness,
+            trainability=trainability,
+            sheddingamount=sheddingamount,
+            exerciseneeds=exerciseneeds
+        )
+
+        try:
+            updateBreed.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        updateBreed.save()
+        print 'Update Breed Logged'
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+    def delete(self, request, id):
+        if not Breed.objects.filter(id=id).exists():
+            return Response({'breed': 'Breed does not exist.', 'status': 'error'})
+        breed = Breed.objects.filter(id=id)
+        breed.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+class BreedList(APIView):
+    permission_classes = (AllowAny,)
+    parser_classes = (parsers.JSONParser,parsers.FormParser)
+    renderer_classes = (renderers.JSONRenderer, )
+
+    def get(self, request, format=None):
+        events = Breed.objects.all()
+        json_data = serializers.serialize('json', events)
+        content = {'dogs': json_data}
+        return HttpResponse(json_data, content_type='json')
+
+    def post(self, request, *args, **kwargs):
+        print 'REQUEST DATA'
+        print str(request.data)
+
+        name = request.data.get('name') #you need to apply validators to these
+        size = request.data.get('size') #you need to apply validators to these
+        friendliness = request.data.get('friendliness') #you need to apply validators to these
+        trainability = request.data.get('trainability') #you need to apply validators to these
+        sheddingamount = request.data.get('sheddingamount') #you need to apply validators to these
+        exerciseneeds = request.data.get('exerciseneeds') #you need to apply validators to these
+        if Breed.objects.filter(name=name).exists():
+            return Response({'name': 'Name already exists.', 'status': 'error'})
+
+        newBreed = Breed(
+            name=name,
+            size=size,
+            friendliness=friendliness,
+            trainability=trainability,
+            sheddingamount=sheddingamount,
+            exerciseneeds=exerciseneeds
+        )
+
+        try:
+            newBreed.clean_fields()
+        except ValidationError as e:
+            print e
+            return Response({'success':False, 'error':e}, status=status.HTTP_400_BAD_REQUEST)
+
+        newBreed.save()
+        print 'New Breed Logged'
+        return Response({'success': True}, status=status.HTTP_200_OK)
